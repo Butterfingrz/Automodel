@@ -178,7 +178,8 @@ def test_packed_forward_backward_parity() -> None:
         support_rows.append(torch.where(blocks <= current, blocks, -1))
     support = torch.cat(support_rows).expand(_KV_HEADS, -1, -1).to(torch.int32).contiguous()
     microbatch = msa.MSAMicrobatch.from_document_map(documents, forced_blocks=_FORCED)
-    _check_flat_attention(microbatch, support, lengths, torch.arange(sum(lengths), device=device))
+    with torch.autograd.set_multithreading_enabled(False):
+        _check_flat_attention(microbatch, support, lengths, torch.arange(sum(lengths), device=device))
 
 
 def test_top16_truncation_large_schedule_parity() -> None:
